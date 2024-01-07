@@ -2,6 +2,8 @@
 
 """The setup script."""
 
+# cSpell:ignore cookiecutter iscl
+
 from setuptools import setup, find_packages
 
 with open('README.rst') as readme_file:
