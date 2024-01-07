@@ -1,3 +1,5 @@
+.. cSpell:ignore cookiecutter
+
 =======
 History
 =======

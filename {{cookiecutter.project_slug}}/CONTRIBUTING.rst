@@ -1,4 +1,6 @@
 .. highlight:: shell
+.. cSpell:ignore cookiecutter
+
 
 ============
 Contributing
