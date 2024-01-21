@@ -6,7 +6,7 @@ import sys
 import io
 import argparse
 
-# cSpell:ignore datefmt levelname
+# cSpell:ignore levelname
 
 
 def main():
@@ -38,46 +38,50 @@ def main():
 
 
 def aaa():
+    logger.debug("func aaa() invoked.")
+    print(f'hi from {__name__}.')
     pass
 
 
 def bbb():
+    logger.debug("func bbb() invoked.")
     pass
 
 
 def ccc():
+    logger.debug("func ccc() invoked.")
     pass
 
 
 def ddd():
+    logger.debug("func ddd() invoked.")
     pass
 
 
 if __name__ == "__main__":
     # https://qiita.com/jack-low/items/91bf9b5342965352cbeb
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+    logger = logging.getLogger(__name__)
+else:
+    logger = logging.getLogger(f"__main__.{__name__}")
+logger.setLevel(logging.DEBUG)
 
-    # logger setup
-    filename = str(sys.argv[0])[:-3] + ".log"
-    format = "%(asctime)s - %(filename)s: %(lineno)s: %(funcName)s - %(levelname)-8s: %(message)s"
-    logging.basicConfig(
-        filename = filename,
-        format   = format,
-        datefmt  = "%m-%d %H:%M",
-        level    = logging.INFO,
-        # level    = logging.DEBUG,
-        # level    = logging.ERROR,
-    )
+format_file = logging.Formatter(
+    "%(asctime)s %(filename)s: %(lineno)s: %(funcName)s - %(levelname)s: %(message)s"
+)
+file_handler = logging.FileHandler(str(sys.argv[0])[:-3] + ".log")
+file_handler.setFormatter(format_file)
+file_handler.setLevel(logging.DEBUG)
+logger.addHandler(file_handler)
 
-    # https://docs.python.org/3/howto/logging-cookbook.html#logging-to-multiple-destinations
-    # define a Handler which writes INFO messages or higher to the sys.stderr
-    console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
-    # set a format which is simpler for console use
-    formatter = logging.Formatter("%(name)-12s: %(levelname)-8s %(message)s")
-    # tell the handler to use this format
-    console.setFormatter(formatter)
-    # add the handler to the root logger
-    logging.getLogger("").addHandler(console)
+# add a Handler which writes INFO messages or higher to the console
+format_console = logging.Formatter(
+    "%(filename)s: %(levelname)s %(funcName)s - %(message)s"
+)
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(format_console)
+console_handler.setLevel(logging.INFO)
+logger.addHandler(console_handler)
 
+if __name__ == "__main__":
     main()

@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 
 @dataclass
 class Report:
-    file   : str
+    file: str
     records: list = field(default_factory=list, init=False)
 
     def __post_init__(self):
@@ -29,30 +29,24 @@ class Record:
 
 
 def parse(file, callback=None):
-
     # iterate through rows of an Excel spreadsheet
 
     if callback is not None and not callable(callback):
-        raise ValueError(
-            f'callback given but it it not callable. It is a {type(callback)}.'
-        )
+        raise ValueError(f"callback given but it it not callable. It is a {type(callback)}.")
 
-    r        = Report(file=file)
-    encoding = 'utf-8'
+    r = Report(file=file)
+    encoding = "utf-8"
 
     with open(file=file, encoding=encoding) as csvfile:
         # with open(file=file, encoding=encoding, errors='surrogateescape') as csvfile:
-        csvreader = csv.reader(csvfile, delimiter='\t')
+        csvreader = csv.reader(csvfile, delimiter="\t")
         for row_number, row in enumerate(csvreader, 1):
-
             if row_number <= 3:
-                logging.debug(
-                    f"Row {row_number}. First three rows are ignored. Skipping.")
+                logging.debug(f"Row {row_number}. First three rows are ignored. Skipping.")
                 continue
 
             elif len(row) == 0:
-                logging.debug(
-                    f"Row {row_number}. Length of row is zero. Skipping.")
+                logging.debug(f"Row {row_number}. Length of row is zero. Skipping.")
                 continue
 
             x = Record(
@@ -74,32 +68,26 @@ def main():
     pass
 
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     # https://qiita.com/jack-low/items/91bf9b5342965352cbeb
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+    logger = logging.getLogger(__name__)
+else:
+    logger = logging.getLogger(f"__main__.{__name__}")
+logger.setLevel(logging.DEBUG)
 
-    # logger setup
-    filename = str(sys.argv[0])[:-3] + '.log'
-    format   = '%(asctime)s - %(filename)s: %(lineno)s: %(funcName)s - %(levelname)-8s: %(message)s'
-    logging.basicConfig(
-        filename = filename,
-        format   = format,
-        datefmt  = '%m-%d %H:%M',
-        level    = logging.INFO,
-        # level   =logging.DEBUG,
-        # level   =logging.ERROR,
-    )
+format_file = logging.Formatter("%(asctime)s %(filename)s: %(lineno)s: %(funcName)s - %(levelname)s: %(message)s")
+file_handler = logging.FileHandler(str(sys.argv[0])[:-3] + ".log")
+file_handler.setFormatter(format_file)
+file_handler.setLevel(logging.DEBUG)
+logger.addHandler(file_handler)
 
-    # https://docs.python.org/3/howto/logging-cookbook.html#logging-to-multiple-destinations
-    # define a Handler which writes INFO messages or higher to the sys.stderr
-    console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
-    # set a format which is simpler for console use
-    formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
-    # tell the handler to use this format
-    console.setFormatter(formatter)
-    # add the handler to the root logger
-    logging.getLogger('').addHandler(console)
+# add a Handler which writes INFO messages or higher to the console
+format_console = logging.Formatter("%(filename)s: %(levelname)s %(funcName)s - %(message)s")
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(format_console)
+console_handler.setLevel(logging.INFO)
+logger.addHandler(console_handler)
 
+if __name__ == "__main__":
     main()
