@@ -6,7 +6,7 @@ import sys
 import io
 import argparse
 
-# cSpell:ignore levelname
+# cSpell:ignore datefmt levelname
 
 
 def main():
@@ -38,50 +38,47 @@ def main():
 
 
 def aaa():
-    logger.debug("func aaa() invoked.")
-    print(f'hi from {__name__}.')
-    pass
+    logger.info("This is INFO, inside function aaa().")
+    logger.debug("This is DEBUG, inside function aaa().")
+    logger.warning("This is WARNING, inside function aaa().")
+    logger.error("This is ERROR, inside function aaa().")
 
 
 def bbb():
-    logger.debug("func bbb() invoked.")
     pass
 
 
 def ccc():
-    logger.debug("func ccc() invoked.")
     pass
 
 
 def ddd():
-    logger.debug("func ddd() invoked.")
     pass
 
 
 if __name__ == "__main__":
+
     # https://qiita.com/jack-low/items/91bf9b5342965352cbeb
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+
+    # logger setup
     logger = logging.getLogger(__name__)
-else:
-    logger = logging.getLogger(f"__main__.{__name__}")
-logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.DEBUG)
 
-format_file = logging.Formatter(
-    "%(asctime)s %(filename)s: %(lineno)s: %(funcName)s - %(levelname)s: %(message)s"
-)
-file_handler = logging.FileHandler(str(sys.argv[0])[:-3] + ".log")
-file_handler.setFormatter(format_file)
-file_handler.setLevel(logging.DEBUG)
-logger.addHandler(file_handler)
+    file_name = str(sys.argv[0])[:-3] + ".log"
+    handler_file = logging.FileHandler(file_name)
+    handler_file.setLevel(logging.DEBUG)
+    formatter_file = logging.Formatter(
+        "%(asctime)s - %(filename)s: %(lineno)s: %(funcName)s - %(levelname)s: %(message)s"
+    )
+    handler_file.setFormatter(formatter_file)
+    logger.addHandler(handler_file)
 
-# add a Handler which writes INFO messages or higher to the console
-format_console = logging.Formatter(
-    "%(filename)s: %(levelname)s %(funcName)s - %(message)s"
-)
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(format_console)
-console_handler.setLevel(logging.INFO)
-logger.addHandler(console_handler)
+    # console logger to show INFO messages
+    handler_console = logging.StreamHandler()
+    handler_console.setLevel(logging.INFO)
+    formatter_console = logging.Formatter("%(name)s: %(levelname)s %(message)s")
+    handler_console.setFormatter(formatter_console)
+    logger.addHandler(handler_console)
 
-if __name__ == "__main__":
     main()

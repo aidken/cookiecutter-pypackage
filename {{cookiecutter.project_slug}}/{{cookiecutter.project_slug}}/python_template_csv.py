@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 
 @dataclass
 class Report:
-    file: str
+    file   : str
     records: list = field(default_factory=list, init=False)
 
     def __post_init__(self):
@@ -29,24 +29,30 @@ class Record:
 
 
 def parse(file, callback=None):
+
     # iterate through rows of an Excel spreadsheet
 
     if callback is not None and not callable(callback):
-        raise ValueError(f"callback given but it it not callable. It is a {type(callback)}.")
+        raise ValueError(
+            f'callback given but it it not callable. It is a {type(callback)}.'
+        )
 
-    r = Report(file=file)
-    encoding = "utf-8"
+    r        = Report(file=file)
+    encoding = 'utf-8'
 
     with open(file=file, encoding=encoding) as csvfile:
         # with open(file=file, encoding=encoding, errors='surrogateescape') as csvfile:
-        csvreader = csv.reader(csvfile, delimiter="\t")
+        csvreader = csv.reader(csvfile, delimiter='\t')
         for row_number, row in enumerate(csvreader, 1):
+
             if row_number <= 3:
-                logging.debug(f"Row {row_number}. First three rows are ignored. Skipping.")
+                logging.debug(
+                    f"Row {row_number}. First three rows are ignored. Skipping.")
                 continue
 
             elif len(row) == 0:
-                logging.debug(f"Row {row_number}. Length of row is zero. Skipping.")
+                logging.debug(
+                    f"Row {row_number}. Length of row is zero. Skipping.")
                 continue
 
             x = Record(
@@ -69,25 +75,28 @@ def main():
 
 
 if __name__ == "__main__":
+
     # https://qiita.com/jack-low/items/91bf9b5342965352cbeb
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+
+    # logger setup
     logger = logging.getLogger(__name__)
-else:
-    logger = logging.getLogger(f"__main__.{__name__}")
-logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.DEBUG)
 
-format_file = logging.Formatter("%(asctime)s %(filename)s: %(lineno)s: %(funcName)s - %(levelname)s: %(message)s")
-file_handler = logging.FileHandler(str(sys.argv[0])[:-3] + ".log")
-file_handler.setFormatter(format_file)
-file_handler.setLevel(logging.DEBUG)
-logger.addHandler(file_handler)
+    file_name = str(sys.argv[0])[:-3] + ".log"
+    handler_file = logging.FileHandler(file_name)
+    handler_file.setLevel(logging.DEBUG)
+    formatter_file = logging.Formatter(
+        "%(asctime)s - %(filename)s: %(lineno)s: %(funcName)s - %(levelname)s: %(message)s"
+    )
+    handler_file.setFormatter(formatter_file)
+    logger.addHandler(handler_file)
 
-# add a Handler which writes INFO messages or higher to the console
-format_console = logging.Formatter("%(filename)s: %(levelname)s %(funcName)s - %(message)s")
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(format_console)
-console_handler.setLevel(logging.INFO)
-logger.addHandler(console_handler)
+    # console logger to show INFO messages
+    handler_console = logging.StreamHandler()
+    handler_console.setLevel(logging.INFO)
+    formatter_console = logging.Formatter("%(name)s: %(levelname)s %(message)s")
+    handler_console.setFormatter(formatter_console)
+    logger.addHandler(handler_console)
 
-if __name__ == "__main__":
     main()
